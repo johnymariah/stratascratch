@@ -5,8 +5,40 @@ https://platform.stratascratch.com/coding/10087-find-all-posts-which-were-reacte
 --distinct post as output even if same post has multiple likes
 --Since we only care about posts that have a heart reaction -  inner join
 
+
+--all qualifying rows are returned - need to explicitly use distinct
+
 SELECT DISTINCT p.*
 FROM facebook_posts p
 JOIN facebook_reactions r
   ON p.post_id = r.post_id
 WHERE r.reaction = 'heart';
+
+
+
+Alternate solutions:
+
+--Builds the full list of matching first
+
+select * 
+from facebook_posts 
+where post_id in (
+  select distinct post_id from facebook_reactions
+  where reaction = "heart" 
+);
+
+
+--Avoids duplicate rows automatically
+--efficient -- once match is found it does not look for other rows
+--Faster on large tables
+
+SELECT *
+FROM facebook_posts p
+WHERE EXISTS (
+    SELECT 1
+    FROM facebook_reactions r
+    WHERE r.post_id = p.post_id
+      AND r.reaction = 'heart'
+);
+
+--FYI Small 0 – 100K (small analytics), Meidum 100K – 10M (Department-level reporting), Large 10M – 1B+ (cloud data warehouses), Very Large / Big Data 1B+
