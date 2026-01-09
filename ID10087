@@ -1,2 +1,12 @@
-Find all posts which were reacted to with a heart
+ID10087: Find all posts which were reacted to with a heart
+https://platform.stratascratch.com/coding/10087-find-all-posts-which-were-reacted-to-with-a-heart?code_type=1
 
+-- assuming reaction column has exact value 'heart' not free-text.
+--distinct post as output even if same post has multiple likes
+--Since we only care about posts that have a heart reaction -  inner join
+
+SELECT DISTINCT p.*
+FROM facebook_posts p
+JOIN facebook_reactions r
+  ON p.post_id = r.post_id
+WHERE r.reaction = 'heart';
