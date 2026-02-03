@@ -1,0 +1,12 @@
+
+--assuming joining_date is a proper date type.
+-- Null joining_date or department will automatically be ignored.
+
+select 
+count(worker_id) as n_admins -- no need of distinct because the tables primary key is worker id
+from worker
+where department = 'Admin'
+-- assuming case sensitive else add lower(department) LIKE 'admin'
+--LOWER(department) LIKE '%admin%'
+--if question did not have any year then WHERE joining_date >= DATE '2026-04-01' is better due to performance considerations. EXTRACT(MONTH FROM joining_date) prevents using an index on joining_date.
+and extract(month from joining_date) >= 4 -- its a number dont add '' 
