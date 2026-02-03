@@ -1,0 +1,11 @@
+https://platform.stratascratch.com/coding/9728-inspections-that-resulted-in-violations?code_type=1
+
+-- year , total number of violations
+
+select 
+extract(year from inspection_date) as year,
+count(violation_id) as n_violations
+from sf_restaurant_health_violations
+where lower(business_name) like '%roxanne%cafe%'
+group by extract(year from inspection_date) 
+order by extract(year from inspection_date);
