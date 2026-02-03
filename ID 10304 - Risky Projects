@@ -1,0 +1,39 @@
+
+
+
+with emp as(
+select 
+emp_id,
+first_name,
+last_name,
+salary,
+project_id,
+salary/365.0 as salary_per_day -- divide by 365.0 to avoild integer division and force floating point division in postgres
+from linkedin_employees e
+join linkedin_emp_projects p
+on e.id = p.emp_id
+)
+
+,proj as (select 
+id as project_id,
+budget,
+title,
+start_date,
+end_date,
+end_date - start_date as project_duration,
+emp_id,
+salary_per_day,
+(end_date - start_date) * salary_per_day as employee_expense
+from linkedin_projects p
+left join emp e
+on p.id = e.project_id 
+)
+
+select
+title,
+budget,
+CEILING(sum(employee_expense)) as prorated_employee_expense -- rounding , to avoid underestimating costs
+from proj p
+GROUP BY title,budget
+having sum(employee_expense) > budget
+order by title
