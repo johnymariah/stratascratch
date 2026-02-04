@@ -1,0 +1,29 @@
+--https://platform.stratascratch.com/coding/10352-users-by-avg-session-time?code_type=1
+-- max(page_load - page_exit) by day , page_load < page_exit 
+
+with cte as(
+select 
+user_id,
+DATE(timestamp) as date,
+max(case when action ='page_load' then timestamp end) as page_load_time, -- latest login time 
+min(case when action ='page_exit' then timestamp end) as page_exit_time -- earliest exit time
+from facebook_web_log
+group by user_id,DATE(timestamp)
+)
+
+-- select * from cte;
+,session as(select
+user_id,
+-- date,
+page_exit_time - page_load_time as session_duration
+from cte
+where page_load_time < page_exit_time --filters invalid rows
+and page_load_time is not null --NULL sessions could affect your average (AVG) if not handled carefully.
+and page_exit_time is not null
+)
+
+select
+user_id,
+avg(session_duration) as avg_session_duration
+from session
+group by user_id
