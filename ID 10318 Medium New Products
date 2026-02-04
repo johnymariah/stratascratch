@@ -1,0 +1,31 @@
+
+
+
+with prod as(
+select
+company_name,
+year,
+count(product_name) as prod_count
+from car_launches
+group by company_name,year)
+
+
+select
+company_name,
+sum(case when year ='2020' then prod_count end) - sum(case when year ='2019' then prod_count end) as net_products
+from prod
+group by company_name
+order by company_name
+
+
+shorter solution
+
+
+
+SELECT
+    company_name,
+    SUM(CASE WHEN year = 2020 THEN 1 ELSE 0 END) 
+    - SUM(CASE WHEN year = 2019 THEN 1 ELSE 0 END) AS net_products
+FROM car_launches
+GROUP BY company_name
+ORDER BY company_name;
