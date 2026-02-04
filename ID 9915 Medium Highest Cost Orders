@@ -1,0 +1,46 @@
+--https://platform.stratascratch.com/coding/9915-highest-cost-orders?code_type=1
+
+-- highest order cust - between 2019-02-01 and 2019-05-01
+-- o/p -> first name , total cost per day, date
+-- return tied top cust , rank/dense_rank
+
+-- assumption
+-- all order have a valid cust in the ord table
+
+with daily_ord_tot as(
+select
+c.first_name,
+o.order_date,
+sum(o.total_order_cost) as tot_cost
+from orders o
+join customers c
+on o.cust_id = c.id
+where o.order_date::date between '2019-02-01':: date and '2019-05-01':: date
+group by c.first_name,o.order_date
+order by o.order_date)
+
+,ranked_cust as(
+select 
+first_name,
+order_date,
+tot_cost,
+rank() over(partition by order_date order by tot_cost desc) as rnk
+from daily_ord_tot
+order by tot_cost )
+
+
+select 
+first_name,
+order_date,
+tot_cost
+from ranked_cust
+where rnk =1
+
+
+--RANK(): Requires a Sort operation. -- $O(n \log n)$ complexity.
+--MAX(): Requires a Scalar Aggregation. --$O(n)$ complexity.
+--Sargability is a term derived from Search ARGument-ABLE.
+--A query is "Sargable" if the database engine can take advantage of an index to speed up the execution. If a query is "Non-Sargable," the engine must perform a Full Table Scan, reading every single row because it cannot use the index effectively.Feature	Non-Sargable (Bad)	Sargable (Good)
+Example	WHERE YEAR(order_date) = 2024 vs 	WHERE order_date >= '2024-01-01' AND order_date < '2025-01-01'
+Logic	Database must calculate YEAR() for every row.	Database jumps straight to the 2024 range in the index.
+Performance	Slow (Full Table Scan).	Fast (Index Seek).
