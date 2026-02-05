@@ -1,0 +1,9 @@
+
+
+select
+(sum(case when country = 'USA' and status='open' then 1 else 0 end) * 1.0/count(*) ) * 100 as us_active_share
+from fb_active_users
+
+--Single Pass -  This query only reads the table once
+--conditional aggregation using case staement
+-- alt CAST(column AS FLOAT)
