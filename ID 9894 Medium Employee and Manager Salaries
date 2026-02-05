@@ -1,0 +1,19 @@
+
+select
+e.first_name,
+e.salary
+from employee e
+join employee m
+on e.manager_id = m.id
+where e.salary > m.salary;
+
+
+-- for this query to run fast on a large dataset the id column should be a Primary Key and the manager_id column should be indexed. 
+-- This prevents the database from performing a "Full Table Scan."
+
+
+alternate solution
+
+
+SELECT first_name, salary
+FROM employee e WHERE salary > (SELECT salary FROM employee WHERE id = e.manager_id);
