@@ -1,0 +1,59 @@
+
+with send as(
+select 
+user_id_sender,
+user_id_receiver,
+action,
+date as date_req_sent,
+1 as sent_req
+from fb_friend_requests
+where action = 'sent'
+)
+,accepted as(
+select
+date_req_sent,
+r.user_id_sender,
+r.user_id_receiver,
+s.action,
+r.action
+from fb_friend_requests r
+join send s
+on r.user_id_sender = s.user_id_sender
+and r.user_id_receiver = s.user_id_receiver
+where r.action ='accepted'
+)
+,tot_acc_cte as(select 
+date_req_sent,
+count(user_id_sender) as tot_accep
+from accepted
+group by date_req_sent
+)
+,tot_sent_cte as (
+select 
+date_req_sent,
+sum(sent_req) as tot_sent
+from send
+group by date_req_sent
+)
+
+select 
+ts.date_req_sent,
+(tot_accep* 1.0/tot_sent) as percentage_acceptance
+from tot_sent_cte ts
+join tot_acc_cte ta
+on ts.date_req_sent = ta.date_req_sent
+
+MOST OPTIMIZED!
+
+
+SELECT 
+    s.date,
+    COUNT(a.action) * 1.0 / COUNT(s.action) AS acceptance_rate
+FROM fb_friend_requests s
+LEFT JOIN fb_friend_requests a 
+    ON s.user_id_sender = a.user_id_sender 
+    AND s.user_id_receiver = a.user_id_receiver
+    AND a.action = 'accepted' -- if there are no matching recods then NULL is returned 
+WHERE s.action = 'sent' --Since we want to calculate the rate based on the number of requests initiated (FROM LEFT TABLE)
+GROUP BY s.date
+HAVING COUNT(a.action) > 0;
