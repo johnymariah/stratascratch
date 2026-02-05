@@ -1,0 +1,29 @@
+--year = 1020
+-- top 10
+--o/p rank,grp name (singer),song name 
+-- order by rank asc
+
+select distinct --computationally expensive on large datasets
+year_rank,
+group_name,
+song_name
+from billboard_top_100_year_end
+where year ='2010'
+and year_rank<=10;
+
+OTHER SOLUTIONS
+
+--more modular
+WITH TopSongs AS (
+    SELECT 
+        year_rank, 
+        group_name, 
+        song_name
+    FROM billboard_top_100_year_end
+    WHERE year = 2010
+)
+SELECT DISTINCT * FROM TopSongs
+WHERE year_rank <= 10
+ORDER BY year_rank;
+
+
