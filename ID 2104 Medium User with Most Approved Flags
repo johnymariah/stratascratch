@@ -4,7 +4,7 @@ select
 user_firstname,
 user_lastname,
 count(DISTINCT video_id) as flag_count,
-rank() over(order by count(DISTINCT video_id) desc) as rnk
+rank() over(order by count(DISTINCT video_id) desc) as rnk  -- YOU CAN USE AGGREGATE FUNCTION INSIDE A WINDOW FUNCTION
 from user_flags f
 join flag_review r
 on f.flag_id = r.flag_id
