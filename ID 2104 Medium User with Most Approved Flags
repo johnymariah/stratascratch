@@ -1,0 +1,43 @@
+
+with approved as(
+select
+user_firstname,
+user_lastname,
+count(DISTINCT video_id) as flag_count,
+rank() over(order by count(DISTINCT video_id) desc) as rnk
+from user_flags f
+join flag_review r
+on f.flag_id = r.flag_id
+where reviewed_by_yt ::boolean = TRUE
+and reviewed_outcome = 'APPROVED'
+group by user_firstname,user_lastname, reviewed_by_yt
+order by flag_count desc
+)
+
+-- beacuse you cannot use window functions in same cte in protgres you can in snoqflake using qualify
+select 
+user_firstname||' '||user_lastname
+from approved
+where rnk=1
+
+refined solution---
+
+
+WITH flagged_counts AS (
+    SELECT 
+        user_firstname, 
+        user_lastname,
+        RANK() OVER (ORDER BY COUNT(DISTINCT video_id) DESC) as rnk
+    FROM user_flags f
+    JOIN flag_review r
+    ON f.flag_id = r.flag_id
+    WHERE r.reviewed_outcome = 'APPROVED'
+    GROUP BY user_firstname, user_lastname
+)
+SELECT 
+    user_firstname || ' ' || user_lastname AS full_name
+FROM flagged_counts
+WHERE rnk = 1;
+
+
+NOTE: using RANK() or DENSE_RANK(). If you used ROW_NUMBER(), you would arbitrarily pick only one person during a tie
